@@ -4,15 +4,14 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from PMA_api.models import (
-    Passwords
+    Passwords,SharePassword
 )
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id','username', 'email', 'first_name','last_name']
-        
-        
+         
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
             required=True,
@@ -52,7 +51,25 @@ class RegisterSerializer(serializers.ModelSerializer):
     
 class PasswordsSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only = True)
+    
+    # def __init__(self, ext=None, *args, **kwargs):
+    #     if ext in self.Meta.fields:
+    #         self.Meta.fields.remove(ext)
+    #     super(PasswordsSerializer, self).__init__(*args, **kwargs)
+        
     class Meta:
         model = Passwords
         fields = ['id','platform', 'password','active','created_on','user']
+        
+class SharePasswordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SharePassword
+        fields = ["shareto", "password"]
+        
+class SharePasswordListSerializer(serializers.ModelSerializer):
+    shareto = UserSerializer(read_only = True)
+    password = PasswordsSerializer(read_only = True)
+    class Meta:
+        model = SharePassword
+        fields = ["shareto", "password"]
         

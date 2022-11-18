@@ -4,7 +4,7 @@ from rest_framework.authtoken import views
 
 from PMA_api.views import (
     UserViewSet,ListUsers,RegisterUser,SignInUser,
-    PasswordView
+    PasswordView,SharePasswordView
 )
 
 router = routers.DefaultRouter()
@@ -19,4 +19,6 @@ urlpatterns = [
     
     path('password/', PasswordView.as_view(),name='password_create'),
     path('password/<str:pk>/', PasswordView.as_view(),name='password_create'),
+    
+    path('share-password/', SharePasswordView.as_view(),name='share_password'),
 ]

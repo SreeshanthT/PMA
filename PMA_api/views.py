@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.shortcuts import render, get_object_or_404
+from django.db import IntegrityError
 from rest_framework import viewsets,permissions,authentication,generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -7,7 +7,8 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 
 from PMA_api.serializers import (
-    UserSerializer,RegisterSerializer,PasswordsSerializer
+    UserSerializer,RegisterSerializer,PasswordsSerializer,
+    SharePasswordSerializer,SharePasswordListSerializer
 )
 from PMA_api.models import(
     Passwords,
@@ -76,9 +77,12 @@ class PasswordView(APIView):
         instance = get_object_or_None(self.queryset,id=kwargs.get('pk'))
         serializer = PasswordsSerializer(data = request.data,instance=instance)
         if serializer.is_valid(raise_exception=False):
-            password = serializer.save(user=request.user)
+            try:
+                password = serializer.save(user=request.user)
+            except IntegrityError:
+                return Response({"status":False,"message":"already exist"})
+                
             return Response(serializer.data) 
-        print(serializer.errors)
         return Response(serializer.errors)
     
     def get(self,request, *args, **kwargs):
@@ -86,8 +90,29 @@ class PasswordView(APIView):
         serializer = PasswordsSerializer(instance,many=False)
         if instance is None:
             serializer = PasswordsSerializer(self.get_queryset(),many=True)
-        
         return Response(serializer.data) 
     
     def get_queryset(self):
         return self.queryset.filter(user = self.request.user)
+    
+
+class SharePasswordView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = SharePasswordSerializer
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data = request.data)
+        if serializer.is_valid():
+            SP = serializer.save()
+            SP.shareby = self.request.user
+            SP.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+    
+    def get(self, request, *args, **kwargs):
+        serializer = SharePasswordListSerializer(self.get_shared_password(),many=True)
+        return Response(serializer.data)
+    
+    def get_shared_password(self):
+        return self.request.user.outgoing_passwords.all()
