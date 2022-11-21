@@ -4,7 +4,7 @@ from rest_framework.authtoken import views
 
 from PMA_api.views import (
     UserViewSet,ListUsers,RegisterUser,SignInUser,
-    PasswordView,SharePasswordView
+    PasswordView,SharePasswordView,IndexView
 )
 
 router = routers.DefaultRouter()
@@ -12,6 +12,7 @@ router.register(r'users', UserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('', IndexView.as_view(), name='index'),
     path('list-users/', ListUsers.as_view(),name='list_users'),
     path('api-token-auth/', views.obtain_auth_token),
     path('sign-in/', SignInUser.as_view(), name="sign_in"),

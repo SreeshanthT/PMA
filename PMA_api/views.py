@@ -16,6 +16,25 @@ from PMA_api.models import(
 from PMA.utils import get_object_or_None
 
 # Create your views here.
+class IndexView(APIView):
+    permission_classes = [
+        permissions.AllowAny,
+    ]
+    
+    def get(self, request):
+        return Response({
+            "endpoints":{
+                "sign_up":"api/sign-in/",
+                "sign_in":"api/sign-up/",
+                "password_list":"api/password/",
+                "password_create":"[post method]: 'api/password/'",
+                "password_edit":"[post method]: 'api/password/<str:id>/'",
+                "password_view":"[get method]: 'api/password/<str:id>/'",
+                "share_password/":"[post method]: 'api/share_password/'",
+                
+            }
+        })
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()

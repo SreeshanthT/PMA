@@ -15,10 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from PMA_api.views import IndexView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
-    path('', include('PMA_api.urls'))
+    path('api', include('PMA_api.urls')),
+    path('', IndexView.as_view()),
     
 ]
